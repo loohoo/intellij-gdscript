@@ -22,6 +22,7 @@
 		<annotator implementationClass="gdscript.annotation.KeywordAnnotator" language="GDScript"/>
 		<annotator implementationClass="gdscript.annotation.MethodAnnotator" language="GDScript"/>
 		<annotator implementationClass="gdscript.annotation.UpperCaseConstantAnnotator" language="GDScript"/>
+		<annotator implementationClass="gdscript.annotation.TypePropagationAnnotator" language="GDScript"/>
 		<lang.braceMatcher implementationClass="gdscript.typing.ScriptBraceMatcher" language="GDScript"/>
 		<lang.quoteHandler implementationClass="gdscript.typing.ScriptQuoteHandler" language="GDScript"/>
 		<lang.commenter implementationClass="gdscript.commenter.ScriptCommenter" language="GDScript"/>
