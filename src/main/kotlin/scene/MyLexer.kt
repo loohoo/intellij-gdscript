@@ -35,13 +35,14 @@ class MyLexer(
 
     override fun getTokenEnd() = end
 
-    override fun getBufferEnd() = end
+    override fun getBufferEnd() = buffer.length
 
     override fun getState() = 0
 
     private fun scan() {
         if (finished()) {
             type = null
+            end = bufferEnd
             return
         }
         val match = findClosestGroupMatch()
@@ -55,6 +56,7 @@ class MyLexer(
             if (group != null) {
                 type = name
                 end = group.range.last + 1
+                return
             }
         }
     }
