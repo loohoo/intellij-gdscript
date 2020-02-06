@@ -44,9 +44,14 @@ class MyLexer(
             type = null
             return
         }
-        val searchResult = regex.find(buffer, start)
+        val searchResult = regex.find(buffer, start)!!
+        if (searchResult.range.first != end) {
+            type = fallback
+            end = searchResult.range.first
+            return
+        }
         for (name in types) {
-            val group = searchResult!!.groups[name.toString()]
+            val group = searchResult.groups[name.toString()]
             if (group != null) {
                 type = name
                 start = group.range.first
