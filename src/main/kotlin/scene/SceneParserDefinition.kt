@@ -1,61 +1,54 @@
 package scene
 
+import com.intellij.extapi.psi.PsiFileBase
+import com.intellij.lang.ASTFactory
 import com.intellij.lang.ASTNode
 import com.intellij.lang.ParserDefinition
 import com.intellij.lang.PsiParser
 import com.intellij.lexer.Lexer
 import com.intellij.openapi.project.Project
 import com.intellij.psi.FileViewProvider
-import com.intellij.psi.tree.IElementType
+import com.intellij.psi.PlainTextTokenTypes
+import com.intellij.psi.PsiElement
+import com.intellij.psi.PsiFile
 import com.intellij.psi.tree.IFileElementType
-import org.antlr.intellij.adaptor.lexer.ANTLRLexerAdaptor
-import org.antlr.intellij.adaptor.lexer.PSIElementTypeFactory
-import org.antlr.intellij.adaptor.parser.ANTLRParserAdaptor
-import org.antlr.intellij.adaptor.psi.ANTLRPsiNode
-import org.antlr.v4.runtime.Parser
-import org.antlr.v4.runtime.tree.ParseTree
-import scene.SceneTokenSet.LINE_COMMENTS
-import scene.SceneTokenSet.STRINGS
-import scene.SceneTokenSet.WHITESPACES
+import com.intellij.psi.tree.TokenSet
+import com.intellij.psi.util.PsiUtilCore
 
 class SceneParserDefinition : ParserDefinition {
 
-    init {
-        @Suppress("DEPRECATION")
-        PSIElementTypeFactory.defineLanguageIElementTypes(SceneLanguage, SceneParser.tokenNames, SceneParser.ruleNames)
+    override fun createLexer(project: Project): Lexer =
+        MyLexer()
+
+    override fun createParser(project: Project): PsiParser {
+        throw UnsupportedOperationException("Not supported")
     }
 
-    override fun createLexer(project: Project): Lexer =
-        ANTLRLexerAdaptor(SceneLanguage, SceneLexer(null))
+    override fun getFileNodeType(): IFileElementType =
+        object : IFileElementType(SceneLanguage) {
 
-    override fun createParser(project: Project): PsiParser =
-        object : ANTLRParserAdaptor(SceneLanguage, SceneParser(null)) {
-            override fun parse(parser: Parser, root: IElementType): ParseTree =
-                (parser as SceneParser).file()
+            override fun parseContents(chameleon: ASTNode): ASTNode? =
+                ASTFactory.leaf(PlainTextTokenTypes.PLAIN_TEXT, chameleon.chars)
+
         }
 
-    override fun getWhitespaceTokens() =
-        WHITESPACES
+    override fun getWhitespaceTokens(): TokenSet =
+        TokenSet.EMPTY
 
-    override fun getCommentTokens() =
-        LINE_COMMENTS
+    override fun getCommentTokens(): TokenSet =
+        TokenSet.EMPTY
 
-    override fun getStringLiteralElements() =
-        STRINGS
+    override fun getStringLiteralElements(): TokenSet =
+        TokenSet.EMPTY
 
-    override fun getFileNodeType() =
-        FILE
+    override fun createElement(node: ASTNode): PsiElement =
+        PsiUtilCore.NULL_PSI_ELEMENT
 
-    override fun createFile(viewProvider: FileViewProvider) =
-        SceneFile(viewProvider)
+    override fun createFile(viewProvider: FileViewProvider): PsiFile =
+        object : PsiFileBase(viewProvider, SceneLanguage) {
 
-    override fun createElement(node: ASTNode) =
-        ANTLRPsiNode(node)
+            override fun getFileType() = SceneType
 
-    companion object {
-
-        val FILE = IFileElementType(SceneLanguage)
-
-    }
+        }
 
 }
