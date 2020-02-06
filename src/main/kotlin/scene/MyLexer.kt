@@ -44,21 +44,23 @@ class MyLexer(
             type = null
             return
         }
-        val searchResult = regex.find(buffer, start)!!
-        if (searchResult.range.first != end) {
+        val match = findClosestGroupMatch()
+        if (end != match.range.first) {
             type = fallback
-            end = searchResult.range.first
+            end = match.range.first
             return
         }
         for (name in types) {
-            val group = searchResult.groups[name.toString()]
+            val group = match.groups[name.toString()]
             if (group != null) {
                 type = name
-                start = group.range.first
                 end = group.range.last + 1
             }
         }
     }
+
+    private fun findClosestGroupMatch(): MatchResult =
+        regex.find(buffer, start)!!
 
     private fun finished() =
         end >= buffer.length
