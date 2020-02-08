@@ -31,5 +31,6 @@
 		<lang.parserDefinition implementationClass="scene.SceneParserDefinition" language="Scene"/>
 		<fileType implementationClass="scene.SceneType" extensions="godot;import;cfg;tres;tscn" name="Scene" language="Scene"/>
 		<lang.syntaxHighlighterFactory implementationClass="scene.SceneHighlighterFactory" language="Scene"/>
+		<multiHostInjector implementation="scene.SceneInjector"/>
 	</extensions>
 </idea-plugin>
