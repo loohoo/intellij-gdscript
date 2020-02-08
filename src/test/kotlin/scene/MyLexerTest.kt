@@ -8,54 +8,31 @@ class MyLexerTest : TestCase() {
 
     fun `test asd`() {
         val lexer = MyLexer(
-            types = listOf(
+            types = setOf(
                 IElementType("IDENTIFIER", SceneLanguage),
                 IElementType("NUMBER", SceneLanguage),
+                IElementType("STRING", SceneLanguage),
+                IElementType("COMMA", SceneLanguage),
                 IElementType("WHITESPACE", SceneLanguage)
             ),
-            fallback = IElementType("UNKNOWN", SceneLanguage),
-            regex = "(?<IDENTIFIER>[a-zA-Z]+)|(?<NUMBER>[0-9]+)|(?<WHITESPACE>\\s+)".toRegex()
+            fallbackType = IElementType("UNKNOWN", SceneLanguage),
+            regex = "(?<IDENTIFIER>[a-zA-Z_]+)|(?<NUMBER>-?\\d*\\.?\\d+)|(?<STRING>\".*?\")|(?<COMMA>,)|(?<WHITESPACE>\\s+)".toRegex()
         )
-        val code = "name  /// text123"
-        println(code)
-        lexer.start(code)
+        lexer.start("""
+            config_version=4
+            flags/filter=true
+            viewport/default_clear_color = Color(0, 0, 0, 1)
+            path="res://icon.stex"
+        """.trimMargin())
         printState(lexer)
-        lexer.advance()
-        printState(lexer)
-        lexer.advance()
-        printState(lexer)
-        lexer.advance()
-        printState(lexer)
-        lexer.advance()
-        printState(lexer)
-        lexer.advance()
-        printState(lexer)
-        lexer.advance()
-        printState(lexer)
-        lexer.advance()
-        printState(lexer)
+        do {
+            lexer.advance()
+            printState(lexer)
+        } while (lexer.tokenType != null)
     }
 
     private fun printState(lexer: MyLexer) {
-        println("{start = ${lexer.tokenStart}, end = ${lexer.tokenEnd}, type = ${lexer.tokenType}, text = '${lexer.tokenText}'}")
+        println("'${lexer.tokenText}' ${lexer.tokenType}") // {${lexer.tokenStart}, ${lexer.tokenEnd}}
     }
 
 }
-
-/*
-fun tokenize(language: Language, lexer: org.antlr.v4.runtime.Lexer, code: String): List<Token> {
-    @Suppress("DEPRECATION")
-    PSIElementTypeFactory.defineLanguageIElementTypes(language, lexer.tokenNames, lexer.ruleNames)
-    val adaptor = ANTLRLexerAdaptor(language, lexer)
-    adaptor.start(code)
-    val tokens = ArrayList<Token>()
-    do {
-        val type = adaptor.tokenType as? TokenIElementType
-            ?: return tokens
-        tokens.add(Token(type.antlrTokenType, adaptor.tokenText))
-        adaptor.advance()
-    } while (true)
-}
-
-data class Token(val type: Int, val text: String)
- */

@@ -6,8 +6,8 @@ import com.intellij.psi.tree.IElementType
 import com.intellij.util.ArrayUtil
 
 class MyLexer(
-    private val types: List<IElementType> = emptyList(),
-    private val fallback: IElementType = ANY_FALLBACK,
+    private val types: Set<IElementType> = emptySet(),
+    private val fallbackType: IElementType = ANY_FALLBACK,
     private val regex: Regex = MATCH_EVERYTHING
 ) : LexerBase() {
 
@@ -40,14 +40,14 @@ class MyLexer(
     override fun getState() = 0
 
     private fun scan() {
-        if (finished()) {
+        val match = findClosestGroupMatch()
+        if (match == null) {
             type = null
             end = bufferEnd
             return
         }
-        val match = findClosestGroupMatch()
         if (end != match.range.first) {
-            type = fallback
+            type = fallbackType
             end = match.range.first
             return
         }
@@ -61,15 +61,12 @@ class MyLexer(
         }
     }
 
-    private fun findClosestGroupMatch(): MatchResult =
-        regex.find(buffer, start)!!
-
-    private fun finished() =
-        end >= buffer.length
+    private fun findClosestGroupMatch() =
+        regex.find(buffer, start)
 
     private companion object {
 
-        private val MATCH_EVERYTHING = "(.*?)".toRegex()
+        private val MATCH_EVERYTHING = ".*?".toRegex()
         private val ANY_FALLBACK = IElementType("NULL", Language.ANY)
 
     }
