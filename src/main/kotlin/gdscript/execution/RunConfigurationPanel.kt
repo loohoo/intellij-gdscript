@@ -14,16 +14,19 @@ import javax.swing.JPanel
 
 class RunConfigurationPanel(project: Project) : SettingsEditor<RunConfiguration>() {
 
-    private val executableComponent = MacroComboBoxWithBrowseButton(createSingleFileOrExecutableAppDescriptor(), project)
-    private val workingDirectoryComponent = MacroComboBoxWithBrowseButton(createSingleFolderDescriptor(), project)
-    private val parametersComponent = RawCommandLineEditor()
+    private val executableComponent =
+        MacroComboBoxWithBrowseButton(createSingleFileOrExecutableAppDescriptor(), project)
+    private val workingDirectoryComponent =
+        MacroComboBoxWithBrowseButton(createSingleFolderDescriptor(), project)
+    private val parametersComponent =
+        RawCommandLineEditor()
 
     override fun createEditor() =
         JPanel().apply {
             layout = VerticalFlowLayout()
-            add(newComponent("Godot executable file:", executableComponent))
-            add(newComponent("Working directory:", workingDirectoryComponent))
-            add(newComponent("Parameters:", parametersComponent))
+            add(newLabeledRow("Godot executable:", executableComponent))
+            add(newLabeledRow("Working directory:", workingDirectoryComponent))
+            add(newLabeledRow("Parameters:", parametersComponent))
         }
 
     override fun applyEditorTo(config: RunConfiguration) {
@@ -38,7 +41,7 @@ class RunConfigurationPanel(project: Project) : SettingsEditor<RunConfiguration>
         parametersComponent.text = config.parameters
     }
 
-    private fun newComponent(label: String, component: JComponent) =
+    private fun newLabeledRow(label: String, component: JComponent) =
         LabeledComponent.create(component, label)
             .also { it.labelLocation = BorderLayout.WEST }
 

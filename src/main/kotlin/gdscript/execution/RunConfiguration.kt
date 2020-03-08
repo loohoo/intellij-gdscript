@@ -2,14 +2,16 @@ package gdscript.execution
 
 import com.intellij.execution.Executor
 import com.intellij.execution.configurations.*
-import com.intellij.execution.process.KillableColoredProcessHandler
+import com.intellij.execution.process.OSProcessHandler
 import com.intellij.execution.process.ProcessHandler
 import com.intellij.execution.process.ProcessTerminatedListener
 import com.intellij.execution.runners.ExecutionEnvironment
+import com.intellij.openapi.components.ServiceManager
 import com.intellij.openapi.project.Project
 import com.intellij.util.execution.ParametersListUtil
+import gdscript.execution.error.ErrorListener
+import gdscript.execution.error.ErrorService
 import org.jdom.Element
-import java.io.File
 
 class RunConfiguration(project: Project, factory: ConfigurationFactory)
     : LocatableConfigurationBase<RunProfileState>(project, factory) {
@@ -19,13 +21,9 @@ class RunConfiguration(project: Project, factory: ConfigurationFactory)
     var parameters = ""
 
     override fun checkConfiguration() {
-        if (executable.isEmpty())
+        if (executable.isBlank())
             throw RuntimeConfigurationError("Executable is empty")
-        if (!File(executable).exists())
-            throw RuntimeConfigurationError("Executable '$executable' doesn't exist")
-        if (!File(executable).canExecute())
-            throw RuntimeConfigurationError("Executable '$executable' can't be executed")
-        if (workingDirectory.isEmpty())
+        if (workingDirectory.isBlank())
             throw RuntimeConfigurationError("Working directory is empty")
     }
 
@@ -36,12 +34,12 @@ class RunConfiguration(project: Project, factory: ConfigurationFactory)
         object : CommandLineState(environment) {
 
             override fun startProcess(): ProcessHandler {
-                val cmd = GeneralCommandLine()
-                    .withExePath(executable)
-                    .withWorkDirectory(workingDirectory)
-                    .withParameters(ParametersListUtil.parse(parameters))
-                return KillableColoredProcessHandler(cmd)
-                    .also { ProcessTerminatedListener.attach(it, environment.project) }
+                val commandLine = createCommandLine()
+                val handler = OSProcessHandler(commandLine)
+                val errorService = ServiceManager.getService(project, ErrorService::class.java)
+                handler.addProcessListener(ErrorListener(errorService))
+                ProcessTerminatedListener.attach(handler, environment.project)
+                return handler
             }
 
         }
@@ -57,6 +55,12 @@ class RunConfiguration(project: Project, factory: ConfigurationFactory)
         element.setAttribute(WORKING_DIRECTORY_KEY, workingDirectory)
         element.setAttribute(PARAMETERS_KEY, parameters)
     }
+
+    private fun createCommandLine() =
+        GeneralCommandLine()
+            .withExePath(executable)
+            .withWorkDirectory(workingDirectory)
+            .withParameters(ParametersListUtil.parse(parameters))
 
     private companion object {
 

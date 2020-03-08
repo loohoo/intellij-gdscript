@@ -3,9 +3,7 @@ package gdscript.execution
 import com.intellij.execution.actions.ConfigurationContext
 import com.intellij.execution.actions.LazyRunConfigurationProducer
 import com.intellij.openapi.util.Ref
-import com.intellij.openapi.util.SystemInfo
 import com.intellij.psi.PsiElement
-import java.io.File
 
 class RunConfigurationProducer : LazyRunConfigurationProducer<RunConfiguration>() {
 
@@ -14,7 +12,7 @@ class RunConfigurationProducer : LazyRunConfigurationProducer<RunConfiguration>(
     ): Boolean {
         val file = retrieveFile(context)
             ?: return false
-        config.executable = determineExecutable(context)
+        config.executable = "godot"
         when {
             file.extension == "tscn" -> {
                 config.name = file.nameWithoutExtension
@@ -44,23 +42,8 @@ class RunConfigurationProducer : LazyRunConfigurationProducer<RunConfiguration>(
         true
 
     private fun retrieveFile(context: ConfigurationContext) =
-        context.psiLocation?.containingFile?.virtualFile
-
-    private fun determineExecutable(context: ConfigurationContext) =
-        findWorkingExecutable(context)
-            ?: getDefaultExecutableBySystem()
-
-    private fun findWorkingExecutable(context: ConfigurationContext) = context
-        .runManager
-        .allSettings
-        .mapNotNull { it.configuration as? RunConfiguration }
-        .map { it.executable }
-        .find { File(it).exists() }
-
-    private fun getDefaultExecutableBySystem() = when {
-        SystemInfo.isLinux -> "/usr/bin/godot"
-        SystemInfo.isWindows -> "C:\\Godot.exe"
-        else -> ""
-    }
+        context.psiLocation
+            ?.containingFile
+            ?.virtualFile
 
 }

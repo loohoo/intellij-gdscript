@@ -18,6 +18,7 @@
 		<annotator implementationClass="gdscript.annotation.InvalidImportFileAnnotator" language="GDScript"/>
 		<annotator implementationClass="gdscript.annotation.InvalidImportSeparatorAnnotator" language="GDScript"/>
 		<annotator implementationClass="gdscript.annotation.ConstantAnnotator" language="GDScript"/>
+		<consoleFilterProvider implementation="gdscript.execution.error.ErrorLinkFilterProvider" order="last" />
 		<colorSettingsPage implementation="gdscript.ScriptColorSettingsPage"/>
 		<completion.contributor implementationClass="gdscript.completion.ResourceCompletionContributor" language="GDScript"/>
 		<completion.contributor implementationClass="gdscript.completion.InvokeCompletionContributor" language="GDScript"/>
@@ -38,5 +39,6 @@
 		<lang.braceMatcher implementationClass="gdscript.ScriptBraceMatcher" language="GDScript"/>
 		<lang.quoteHandler implementationClass="gdscript.ScriptQuoteHandler" language="GDScript"/>
 		<runConfigurationProducer implementation="gdscript.execution.RunConfigurationProducer"/>
+		<projectService serviceImplementation="gdscript.execution.error.ErrorService" />
 	</extensions>
 </idea-plugin>
